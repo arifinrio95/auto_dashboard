@@ -6,7 +6,7 @@ from io import StringIO
 import anthropic
 
 # Set up the Anthropic client
-client = anthropic.Anthropic(api_key='your_api_key_here')
+client = anthropic.Anthropic(api_key=st.secrets['api_key'])
 
 def get_visualization_suggestions(df):
     prompt = f"""
