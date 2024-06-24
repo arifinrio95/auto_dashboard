@@ -10,7 +10,7 @@ client = anthropic.Anthropic(api_key=st.secrets['api_key'])
 
 def get_visualization_suggestions(df):
     prompt = f"""
-    Given the following DataFrame information:
+    Human: Given the following DataFrame information:
     
     Columns and data types:
     {df.dtypes}
@@ -25,6 +25,29 @@ def get_visualization_suggestions(df):
     4. A brief explanation of the insight it might provide
     
     Format your response as a Python list of dictionaries, where each dictionary represents a visualization suggestion.
+
+    Assistant: Based on the provided DataFrame information, here are several insightful visualization suggestions:
+
+    [
+        {{
+            'chart_type': 'bar',
+            'columns': ['column_name1', 'column_name2'],
+            'aggregation': 'sum',
+            'explanation': 'This bar chart shows the total of column_name2 for each category in column_name1, providing insights into the distribution of values across categories.'
+        }},
+        {{
+            'chart_type': 'scatter',
+            'columns': ['column_name3', 'column_name4'],
+            'aggregation': None,
+            'explanation': 'This scatter plot visualizes the relationship between column_name3 and column_name4, helping to identify any correlation or patterns between these variables.'
+        }},
+        # Additional visualization suggestions will be provided here
+    ]
+
+    Human: Thank you for the suggestions. Please provide the complete list of 5-10 visualizations based on the actual data in the DataFrame.
+
+    Assistant: Certainly! I'll provide a complete list of 5-10 visualization suggestions based on the actual data in the DataFrame. Here they are:
+
     """
     
     response = client.completions.create(
@@ -33,7 +56,13 @@ def get_visualization_suggestions(df):
         max_tokens_to_sample=2000,
     )
     
-    return eval(response.completion)
+    # Extract the Python list from the response
+    result = response.completion.strip()
+    start_index = result.find('[')
+    end_index = result.rfind(']') + 1
+    list_string = result[start_index:end_index]
+    
+    return eval(list_string)
 
 def create_visualization(df, viz_info):
     chart_type = viz_info['chart_type']
